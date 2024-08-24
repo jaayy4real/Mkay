@@ -1,0 +1,102 @@
+*{
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #EED5C2;
+}
+
+header{
+    /* position: fixed; */
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 7rem;
+}
+
+.nanum-gothic-regular {
+  font-family: "Nanum Gothic", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.harder{
+    text-align: center;
+}
+
+.new{
+    margin-top:1rem ;
+    display: flex;
+    justify-content: space-between;
+}
+
+.news{
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+}
+
+.cards{
+    border: 1px solid;
+    height: 30rem;
+    width: 25rem;
+    /* background-color: beige; */
+}
+
+.content {
+    text-align: center;
+}
+
+.cards strong{
+    text-align: center;
+}
+
+.date{
+    text-align: end;
+}
+
+.news-input{
+    height: 3rem;
+    width: 25rem;
+}
+
+.signup{
+    border: 1px solid;
+    padding: 1rem;
+}
+
+.letter{
+    margin-top: 3rem;
+    padding-top: 5rem;
+    background-color: #ffffff;
+    height: 30rem;
+    
+}
+
+.letter h2{
+    text-align: center;
+}
+
+.letter p{
+    text-align: center;
+    margin-top: 5rem;
+}
+
+.letter section {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.header{
+    margin-inline: 2rem;
+}
+
+footer{
+    height: 15rem;
+    /* background-color: black; */
+    width: 100%;
+}
+
+footer p {
+    color: #fff;
+}
