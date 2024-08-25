@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body>
+    <div class="text-container">
+      <input class="title" type="text" placeholder="Enter Your title" />
+      <div id="editor-container"></div>
+      <button id="post" href="">Post</button>
+    </div>
+
+    <div class="container">
+      <h1>Upload Media</h1>
+      <div class="upload-area">
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple />
+        <label for="fileInput">Choose Files or Drag & Drop</label>
+      </div>
+      <div id="preview"></div>
+      <button id="uploadButton">Upload</button>
+    </div>
+  </body>
+
+  <script>
+    var quill = new Quill("#editor-container", {
+      theme: "snow",
+    });
+    // let htmlContent
+    function getEditorContent() {
+      return (htmlContent = quill.root.innerHTML);
+    }
+
+    // console.log(getEditorContent());
+
+    const post = document.getElementById("post");
+
+    const makePost = () => {
+      const title = document.querySelector(".title").value.trim();
+      const res = getEditorContent().trim();
+
+      if (!title || !res) {
+        alert("Both title and content are required");
+        return;
+      }
+      if (files.length === 0) {
+        alert("Please select media file");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("body", res);
+
+      files.forEach((file, index) => {
+        formData.append(`mediaFiles`, file);
+      });
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const link = "http://localhost:3000/addPost";
+      console.log(formData);
+
+      fetch(link, {
+        method: "POST",
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Success:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    };
+    post.addEventListener("click", makePost);
+
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("preview");
+    const uploadButton = document.getElementById("uploadButton");
+    const uploadArea = document.querySelector(".upload-area");
+
+    let files = [];
+
+    fileInput.addEventListener("change", handleFileSelect);
+    uploadArea.addEventListener("dragover", handleDragOver);
+    uploadArea.addEventListener("drop", handleDrop);
+    uploadButton.addEventListener("click", handleUpload);
+
+    function handleFileSelect(event) {
+      const selectedFiles = event.target.files;
+      handleFiles(selectedFiles);
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      const droppedFiles = event.dataTransfer.files;
+      handleFiles(droppedFiles);
+    }
+
+    function handleFiles(selectedFiles) {
+      files = [...selectedFiles];
+      preview.innerHTML = "";
+      files.forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          img.classList.add("preview-item");
+          preview.appendChild(img);
+        } else if (file.type.startsWith("video/")) {
+          const video = document.createElement("video");
+          video.src = URL.createObjectURL(file);
+          video.classList.add("preview-item");
+          video.setAttribute("controls", "");
+          preview.appendChild(video);
+        }
+      });
+    }
+
+    function handleUpload() {
+      if (files.length === 0) {
+        alert("Please select files to upload.");
+        return;
+      }
+
+      // Here you would typically send the files to a server
+      // For this example, we'll just log the file names
+      console.log("Uploading files:");
+      files.forEach((file) => {
+        console.log(file.name);
+      });
+
+      alert("Upload simulation complete. Check console for details.");
+    }
+  </script>
+</html>
