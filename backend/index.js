@@ -1,7 +1,7 @@
 const express = require('express')
 // const { getAnalytics } = require('firebase/analytics')
 const firebase = require('firebase/app')
-const { getFirestore, collection, addDoc } = require("firebase/firestore");
+const { getFirestore, collection, addDoc, getDocs, doc, getDoc } = require("firebase/firestore");
 require('firebase/firestore')
 require('firebase/storage')
 const bodyParser = require("body-parser");
@@ -101,6 +101,60 @@ app.post("/addPost", upload.array('mediaFiles') ,async (req, res) => {
     res.status(201).send(`User added with ID: ${docRef.id}`);
   } catch (error) {
     res.status(400).send(`Error adding user: ${error.message}`);
+  }
+});
+
+app.get('/getPost', async (req, res) => {
+    try {
+        const querySnapshot = await getDocs(collection(db, "posts"),)
+        const posts = []
+
+        for (const doc of querySnapshot.docs){
+            const postData = doc.data()
+
+            if (postData.mediaURL && Array.isArray(postData.mediaURL)){
+                const fileURL = await Promise.all(
+                    postData.mediaURL.map(async (filePath)=>{
+                        const fileRef = ref(storage, filePath)
+                        const downloadURL = await getDownloadURL(fileRef)
+                        return downloadURL;
+                    })
+                )
+                postData.mediaURL = fileURL
+            }
+            posts.push({id:doc.id, ...postData})
+        }
+        res.status(200).json(posts)
+        
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        res.status(500).send("Error fetching posts: " + error.message);
+    }
+})
+
+app.get("/getPost/:id", async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const docRef = doc(db, "posts", postId);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      return res.status(404).send("Post not found");
+    }
+
+    const postData = docSnap.data();
+    const mediaURLs = [];
+
+    for (const mediaFile of postData.mediaURL) {
+      const storageRef = ref(storage, mediaFile);
+      const downloadURL = await getDownloadURL(storageRef);
+      mediaURLs.push(downloadURL);
+    }
+
+    res.status(200).json({ ...postData, mediaURLs });
+  } catch (error) {
+    console.error("Error retrieving post: ", error);
+    res.status(500).send(`Error retrieving post: ${error.message}`);
   }
 });
 
