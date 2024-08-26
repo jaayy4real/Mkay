@@ -54,53 +54,18 @@ const storage = getStorage(firebaseApp)
 
 const upload = multer({storage: multer.memoryStorage()})
 
-app.post("/subscribe/:email",async(req,res)=>{
-    
-  try {
-    
-    const email = req.params.email;
-
-    const docRef = await addDoc(collection(db, "subscribers"), {
-      email
-    });
-
-    var mailOptions = {
-      from: 'jeffreyekpo54@gmail.com',
-      to:email,
-      subject: 'Sending Email using Node.js',
-      text: 'That was easy dawg!'
-    };
-    
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
-
-    console.log(docRef.id)
-   
-    res.status(200).json(email)
-   
-  } catch (error) {
-    res.status(400).send(`Error adding user: ${error.message}`);
-  }
-
-
-})
 
 app.post("/addPost", upload.array('mediaFiles') ,async (req, res) => {
  
-
+ const media = req.files[0].mimetype;
 
   
   try {
      const { title, body } = req.body;
      const mediaURL = [];
-     console.log(req.body.mediaFile0);
      console.log(req.files);
      console.log(req.body);
+     
      
      
 
@@ -139,14 +104,19 @@ app.post("/addPost", upload.array('mediaFiles') ,async (req, res) => {
       title,
       body,
       mediaURL,
+      media
+      
+    //   media
     //   created: fir
 
     });
-    res.status(201).send(`User added with ID: ${docRef.id}`);
+    res.status(201).send(`post created: ${req.files}`);
   } catch (error) {
-    res.status(400).send(`Error adding user: ${error.message}`);
+    res.status(400).send(`Error creating post: ${error.message}`);
   }
 });
+// console.log(media);
+
 
 app.get('/getPost', async (req, res) => {
     try {
@@ -201,6 +171,8 @@ app.get("/getPost/:id", async (req, res) => {
     res.status(500).send(`Error retrieving post: ${error.message}`);
   }
 });
+
+
 
 app.listen(3000, ()=>{
     console.log("listening or running at port 3000");
