@@ -64,6 +64,10 @@
       });
 
       for (let [key, value] of formData.entries()) {
+        const entries = []
+        entries.push(key, value)
+        console.log(entries);
+        
         console.log(`${key}:`, value);
       }
 
@@ -84,7 +88,7 @@
           return response.json();
         })
         .then((data) => {
-          console.log("Success:", data);
+          console.log("Success:", data[0]);
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -98,6 +102,8 @@
     const uploadArea = document.querySelector(".upload-area");
 
     let files = [];
+    console.log(files);
+    
 
     fileInput.addEventListener("change", handleFileSelect);
     uploadArea.addEventListener("dragover", handleDragOver);
