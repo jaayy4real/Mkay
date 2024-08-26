@@ -1,6 +1,7 @@
 const express = require('express')
 // const { getAnalytics } = require('firebase/analytics')
 const firebase = require('firebase/app')
+const nodemailer = require("nodemailer");
 const { getFirestore, collection, addDoc, getDocs, doc, getDoc } = require("firebase/firestore");
 require('firebase/firestore')
 require('firebase/storage')
@@ -38,6 +39,13 @@ const firebaseConfig = {
   measurementId: "G-8BPN05MCHN",
 };
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'jeffreyekpo54@gmail.com',
+    pass: 'urdt nivc mgpk zpkd'
+  },
+});
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 // const analytics = getAnalytics(firebaseApp);
@@ -46,7 +54,7 @@ const storage = getStorage(firebaseApp)
 
 const upload = multer({storage: multer.memoryStorage()})
 
-// let media
+
 app.post("/addPost", upload.array('mediaFiles') ,async (req, res) => {
  
  const media = req.files[0].mimetype;
