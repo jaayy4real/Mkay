@@ -1,6 +1,7 @@
 const express = require('express')
 // const { getAnalytics } = require('firebase/analytics')
 const firebase = require('firebase/app')
+const nodemailer = require("nodemailer");
 const { getFirestore, collection, addDoc, getDocs, doc, getDoc } = require("firebase/firestore");
 require('firebase/firestore')
 require('firebase/storage')
@@ -38,6 +39,13 @@ const firebaseConfig = {
   measurementId: "G-8BPN05MCHN",
 };
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'jeffreyekpo54@gmail.com',
+    pass: 'urdt nivc mgpk zpkd'
+  },
+});
 
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 // const analytics = getAnalytics(firebaseApp);
@@ -45,6 +53,42 @@ const db = getFirestore(firebaseApp)
 const storage = getStorage(firebaseApp)
 
 const upload = multer({storage: multer.memoryStorage()})
+
+app.post("/subscribe/:email",async(req,res)=>{
+    
+  try {
+    
+    const email = req.params.email;
+
+    const docRef = await addDoc(collection(db, "subscribers"), {
+      email
+    });
+
+    var mailOptions = {
+      from: 'jeffreyekpo54@gmail.com',
+      to:email,
+      subject: 'Sending Email using Node.js',
+      text: 'That was easy dawg!'
+    };
+    
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
+    console.log(docRef.id)
+   
+    res.status(200).json(email)
+   
+  } catch (error) {
+    res.status(400).send(`Error adding user: ${error.message}`);
+  }
+
+
+})
 
 app.post("/addPost", upload.array('mediaFiles') ,async (req, res) => {
  
