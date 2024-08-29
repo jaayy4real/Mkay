@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const tabLinks = document.querySelectorAll(".tab-link");
   const tabContents = document.querySelectorAll(".tab-content");
-  const postsContainer = document.querySelector(".posts-container");
+  const postContainer = document.querySelector(".post-container");
 
   // Switch between tabs
   tabLinks.forEach((link) => {
@@ -16,25 +16,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Quill editor initialization
-  var quill = new Quill("#editor-container", {
+  // Initialize Quill editor
+  const quill = new Quill("#editor-container", {
     theme: "snow",
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, false] }],
+        ["bold", "italic", "underline"],
+        ["image", "code-block"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link"],
+      ],
+    },
   });
 
-  // Function to get Quill editor content
-  function getEditorContent() {
-    return quill.root.innerHTML.trim();
-  }
-
+  // Handle post creation
   const postButton = document.getElementById("post");
   let files = [];
 
-  // Handle post creation
   const makePost = () => {
-    const title = document.querySelector(".title").value.trim();
-    const res = getEditorContent();
+    const title = document.querySelector(".title").value;
+    const content = quill.root.innerHTML.trim();
 
-    if (!title || !res) {
+    if (!title || !content) {
       alert("Both title and content are required");
       return;
     }
@@ -45,25 +49,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("body", res);
+    formData.append("body", content);
 
     files.forEach((file) => formData.append("mediaFiles", file));
 
-    const link = "http://localhost:3000/addPost";
-    fetch(link, {
+    fetch("http://localhost:3000/addPost", {
       method: "POST",
       body: formData,
     })
       .then((response) => {
-        if (!response.ok)
+        if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
+        }
         return response.json();
       })
       .then((data) => {
         alert("Post created successfully!");
         console.log("Success:", data);
-        // Optionally, refresh the list of posts
-        fetchPosts();
+        // Optionally, clear the editor and file input after successful post
+        quill.root.innerHTML = "";
+        document.querySelector(".title").value = "";
+        document.getElementById("fileInput").value = "";
+        document.getElementById("preview").innerHTML = "";
+        files = [];
       })
       .catch((error) => console.error("Error:", error));
   };
@@ -109,91 +117,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Fetch and display posts in "View All Posts" tab
-  const fetchPosts = () => {
-    fetch("http://localhost:3000/getPost")
+  // Fetch and display posts
+  const getPosts = () => {
+    fetch("http://localhost:3000/getPost", { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
-        postsContainer.innerHTML = ""; // Clear previous posts
+        postContainer.innerHTML = "";
         data.forEach((post) => {
-          const card = createPostCard(post);
-          postsContainer.appendChild(card);
+          const card = createCard(post);
+          postContainer.appendChild(card);
         });
       })
-      .catch((error) => console.error("Error fetching posts:", error));
+      .catch((err) => console.error(err));
   };
 
-  // Function to create a post card
-  const createPostCard = (post) => {
+  const createCard = (post) => {
     const card = document.createElement("div");
-    card.classList.add("post-card");
+    card.classList.add("card");
 
-    const media = document.createElement(
-      post.media.startsWith("image/") ? "img" : "video"
-    );
-    media.src = post.mediaURL[0];
-    if (post.media.startsWith("video/")) {
-      media.controls = true;
+    let mediaElement;
+    if (post.media && post.media.startsWith("image/")) {
+      mediaElement = document.createElement("img");
+      mediaElement.src = post.mediaURL[0];
+      mediaElement.alt = post.title;
+    } else {
+      mediaElement = document.createElement("video");
+      mediaElement.src = post.mediaURL[0];
+      mediaElement.controls = true;
     }
-    media.classList.add("post-media");
 
     const cardContent = document.createElement("div");
-    cardContent.classList.add("post-content");
+    cardContent.classList.add("card-content");
 
-    const title = document.createElement("h3");
+    const title = document.createElement("p");
+    title.classList.add("title");
     title.textContent = post.title;
-    title.classList.add("post-title");
 
-    const body = document.createElement("p");
-    body.innerHTML = stripHtml(post.body).substring(0, 100) + "...";
-    body.classList.add("post-body");
+    const content = document.createElement("p");
+    content.classList.add("content");
+    content.textContent =
+      post.body.replace(/<\/?[^>]+(>|$)/g, "").substring(0, 50) + "...";
 
-    const date = document.createElement("p");
-    date.textContent = new Date(post.createdAt).toLocaleDateString();
-    date.classList.add("post-date");
-
-    const menu = document.createElement("div");
-    menu.classList.add("post-menu");
-    menu.innerHTML = `<button class="delete-post">Delete</button>`;
-
-    menu.querySelector(".delete-post").addEventListener("click", () => {
-      deletePost(post.id);
-    });
+    const readMore = document.createElement("button");
+    readMore.classList.add("read-more");
+    readMore.href = "#";
+    readMore.textContent = "Delete";
 
     cardContent.appendChild(title);
-    cardContent.appendChild(date);
-    cardContent.appendChild(body);
-    cardContent.appendChild(menu);
+    cardContent.appendChild(content);
+    cardContent.appendChild(readMore);
 
-    card.appendChild(media);
+    card.appendChild(mediaElement);
     card.appendChild(cardContent);
 
     return card;
   };
 
-  // Function to delete a post
-  const deletePost = (postId) => {
-    const link = `http://localhost:3000/deletePost/${postId}`;
-    fetch(link, { method: "DELETE" })
-      .then((response) => {
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-      })
-      .then((data) => {
-        alert("Post deleted successfully!");
-        fetchPosts(); // Refresh the list of posts
-      })
-      .catch((error) => console.error("Error deleting post:", error));
-  };
-
-  // Helper function to strip HTML tags
-  const stripHtml = (html) => {
-    let tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
-  // Initial fetch of posts when the page loads
-  fetchPosts();
+  getPosts();
 });

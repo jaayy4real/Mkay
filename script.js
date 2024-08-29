@@ -1,6 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   const postContainer = document.querySelector(".post-container");
 
+  const email = document.querySelector(".news-input");
+  const button = document.querySelector(".signup");
+
+  button.addEventListener("click", () => {
+    if (email == null) {
+      alert("enter email");
+    } else {
+      fetch(`http://localhost:3000/subscribe/${email.value}`, {
+        method: "POST",
+      });
+    }
+  });
+
   const getContent = () => {
     fetch("http://localhost:3000/getPost", {
       method: "GET",
