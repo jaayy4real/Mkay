@@ -121,7 +121,6 @@ app.post('/request', async (req, res) => {
   }
 });
 
-console.log(pendingCodes);
 
 app.post("/verify", async (req, res) => {
   const { email, code } = req.body;
