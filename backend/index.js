@@ -90,8 +90,8 @@ app.post('/request', async (req, res) => {
   });
 
   setTimeout(()=>{
-    pendingCodes.delete(email), 15 * 60 * 1000
-  })
+    pendingCodes.delete(email)
+  }, 15 * 60 * 1000)
 
 
   try {
@@ -152,22 +152,30 @@ app.post("/verify", async (req, res) => {
 const JWT_SECRET =
   "d1eb4725a811c454a32d87d5f18605c924e9e3d237935748e2bb71c20217a3de7ff83243240a1744bfcde63afda256b38880dc0efeadcfeb8ee5a39e3bfa61c0";
 function verifyToken(req, res, next) {
-  const token = req.headers["authorization"];
+  let authHeader = req.headers["authorization"];
+  console.log("Original Authorization header:", authHeader);
 
-  if (!token) {
+  if (!authHeader) {
     return res.status(403).send("A token is required for authentication");
   }
+
+  // Extract the token and remove any surrounding quotes
+  let token = authHeader.split(" ").pop().replace(/^"|"$/g, "");
+
+  console.log("Extracted token:", token);
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
   } catch (err) {
+    console.log("Token verification error:", err);
     return res.status(401).send("Invalid Token");
   }
+
   return next();
 }
 
-app.post("/subscribe/:email", verifyToken, async (req, res) => {
+app.post("/subscribe/:email", async (req, res) => {
   try {
     const email = req.params.email;
 
@@ -198,7 +206,7 @@ app.post("/subscribe/:email", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/addPost", upload.array("mediaFiles"), async (req, res) => {
+app.post("/addPost", verifyToken, upload.array("mediaFiles"), async (req, res) => {
   const media = req.files[0].mimetype
   try {
     const { title, body } = req.body;

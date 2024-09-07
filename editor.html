@@ -39,7 +39,8 @@
     }
 
     // console.log(getEditorContent());
-
+    console.log(localStorage.getItem("jmn"));
+    
     const post = document.getElementById("post");
 
     const makePost = () => {
@@ -76,9 +77,10 @@
 
       fetch(link, {
         method: "POST",
-        // headers: {
-        //   "Content-Type": "application/json",
-        // },
+        headers: {
+          // "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("jmn"),
+        },
         body: formData,
       })
         .then((response) => {

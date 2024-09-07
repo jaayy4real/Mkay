@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 
 
-  const email = document.querySelector(".news-input");
-  const button = document.querySelector(".signup");
+  // const email = document.querySelector(".news-input");
+  // const button = document.querySelector(".signup");
 
   button.addEventListener("click", () => {
     if (email == null) {
