@@ -35,8 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let files = [];
 
   const makePost = () => {
-    const title = document.querySelector(".title").value;
+    const title = document.querySelector("#title").value;
     const content = quill.root.innerHTML.trim();
+
+    console.log(title, content, files);
 
     if (!title || !content) {
       alert("Both title and content are required");
@@ -47,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    
+    
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("body", content);
@@ -55,11 +60,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     fetch("http://localhost:3000/addPost", {
       method: "POST",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("jmn"),
+      },
       body: formData,
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
+        }else
+        {
+            window.location.href = "admin.html";
         }
         return response.json();
       })
