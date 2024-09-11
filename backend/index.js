@@ -36,10 +36,11 @@ app.use(express.json());
 app.use(cors());
 
 const corsOptions = {
-  origin: ["http://127.0.0.1:5500", "https://mkay.onrender.com"], // Allowed origins
+  origin: ["http://127.0.0.1:5500", "https://jaayy4real.github.io"], // Allowed origins
   methods: ["GET", "POST"], // Allowed methods
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
+
 
 
 app.use(cors(corsOptions));
