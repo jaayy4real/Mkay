@@ -58,19 +58,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     files.forEach((file) => formData.append("mediaFiles", file));
 
-    fetch("http://localhost:3000/addPost", {
+    fetch("https://mkay.onrender.com/addPost", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + localStorage.getItem("jmn"),
+        Authorization: "Bearer " + localStorage.getItem("jmn"),
       },
       body: formData,
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
-        }else
-        {
-            window.location.href = "admin.html";
+        } else {
+          window.location.href = "admin.html";
         }
         return response.json();
       })
@@ -130,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch and display posts
   const getPosts = () => {
-    fetch("http://localhost:3000/getPost", { method: "GET" })
+    fetch("https://mkay.onrender.com/getPost", { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
         postContainer.innerHTML = "";

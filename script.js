@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
        alert("enter email")
 
      }else{
-       fetch(`http://localhost:3000/subscribe/${email.value}`,{
-        method: "POST",
-       })
+       fetch(`https://mkay.onrender.com/subscribe/${email.value}`, {
+         method: "POST",
+       });
      }
   })
 
@@ -24,20 +24,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (email == null) {
       alert("enter email");
     } else {
-      fetch(`http://localhost:3000/subscribe/${email.value}`, {
+      fetch(`https://mkay.onrender.com/subscribe/${email.value}`, {
         method: "POST",
       });
     }
   });
 
   const getContent = () => {
-    fetch("http://localhost:3000/getPost", {
+    fetch("https://mkay.onrender.com/getPost", {
       method: "GET",
     })
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        
+
         // Clear the existing content
         postContainer.innerHTML = "";
 
